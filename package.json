@@ -1,0 +1,26 @@
+{
+  "name": "jira-timetracking",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "tracking": "npx tsx index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "xavier-villelegier",
+  "license": "ISC",
+  "dependencies": {
+    "@inquirer/prompts": "^8.2.0",
+    "commander": "^14.0.2",
+    "dotenv": "^17.3.1",
+    "install": "^0.13.0",
+    "jira.js": "5.2.2",
+    "lodash-es": "^4.17.21",
+    "npm": "^10.8.1",
+    "puppeteer-core": "^24.35.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2"
+  }
+}
