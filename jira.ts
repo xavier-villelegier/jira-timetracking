@@ -86,22 +86,22 @@ export const getJiraTimeTrackingValues = async (
     fields: ['parent', 'summary'],
   })
 
-  if (!issues || issues.length === 0) {
-    console.log('No issues found')
-    process.exit(0)
-  }
-
-  // Find the initiative for each issue
-  console.log('\nFinding initiatives for each issue...')
   const issueInitiatives: string[] = []
 
-  for (const issue of issues) {
-    const initiative = await findInitiative(issue.key)
-    if (initiative) {
-      issueInitiatives.push(initiative)
-      console.log(`  ${issue.key} → ${initiative}`)
-    } else {
-      console.log(`  ${issue.key} → (no initiative found)`)
+  if (!issues || issues.length === 0) {
+    console.log('No issues found')
+  } else {
+    // Find the initiative for each issue
+    console.log('\nFinding initiatives for each issue...')
+
+    for (const issue of issues) {
+      const initiative = await findInitiative(issue.key)
+      if (initiative) {
+        issueInitiatives.push(initiative)
+        console.log(`  ${issue.key} → ${initiative}`)
+      } else {
+        console.log(`  ${issue.key} → (no initiative found)`)
+      }
     }
   }
 
@@ -115,9 +115,20 @@ export const getJiraTimeTrackingValues = async (
     roundDown(value * remainingRatio * NB_HOURS_PER_DAY),
   )
 
+  // With no initiative to allocate the feature ratio to, scale maintenance and
+  // admin up proportionally so they still cover the full day
+  const baseRatio = maintenanceRatio + adminRatio
+  const scale = issueInitiatives.length === 0 && baseRatio > 0 ? 1 / baseRatio : 1
+
+  if (scale !== 1) {
+    console.log(
+      `\nNo initiative found: redistributing the ${remainingRatio} feature ratio proportionally over maintenance and administration`,
+    )
+  }
+
   const hoursPerDay: Record<string, number> = {
-    maintenance: roundDown(maintenanceRatio * NB_HOURS_PER_DAY),
-    admin: roundDown(adminRatio * NB_HOURS_PER_DAY),
+    maintenance: roundDown(maintenanceRatio * scale * NB_HOURS_PER_DAY),
+    admin: roundDown(adminRatio * scale * NB_HOURS_PER_DAY),
     ...initiativesHours,
   }
 
